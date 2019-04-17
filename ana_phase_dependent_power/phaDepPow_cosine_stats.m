@@ -10,13 +10,14 @@ function varargout = phaDepPow_cosine_stats(dat,cfg)
 %       - ampstats: bool, randomization stats on fit amplitude 
 %       - shiftstats: bool, randomization stats on fit phase shift 
 %       - nperm: numbr of permutations
+%       - doplot: plot fit (default=false)
+%       - plottitle: plot title
 %
 % Copyright 2017, Benjamin Voloh
 
 %----------------------------------------------------------------
 % inputs
 cfg = checkfield(cfg,'avgtype','needit');
-cfg = checkfield(cfg,'freq','needit');
 cfg = checkfield(cfg,'bincentre','needit');
 cfg = checkfield(cfg,'ampstats',1);
 cfg = checkfield(cfg,'shiftstats',1);
@@ -24,6 +25,9 @@ cfg = checkfield(cfg,'nperm',nan);
 cfg = checkfield(cfg,'doplot',0);
 cfg = checkfield(cfg,'plottitle','cosine fit to raw data');
 
+if cfg.shiftstats
+    cfg = checkfield(cfg,'freq','needit');
+end
 [ndat,npha] = size(dat);
 
 if numel(cfg.bincentre) ~= npha
@@ -148,6 +152,7 @@ out.Trandmean = nanmean(Trand);
 out.Arand = Arand;
 out.Trand = Trand;
 out.N = size(dat,1);
+out.cfg = cfg;
 
 varargout{1} = out;
 if nargout>1

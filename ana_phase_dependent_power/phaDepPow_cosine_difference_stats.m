@@ -1,28 +1,32 @@
 function varargout = phaDepPow_cosine_difference_stats(dat1,dat2,cfg)
-% out = phaDepPow_cosine_stat(dat,cfg)
-% [out,fighandle] = phaDepPow_cosine_stat(dat,cfg)
+% out = phaDepPow_cosine_difference_stats(dat1,dat2,cfg)
+% [out,fighandle] = phaDepPow_cosine_difference_stats(dat1,dat2,cfg)
 %
 % Inputs:
 %   - dat: NxM matrix [ndat,nPhaseBins]
 %   - cfg: sturct with fields
 %       - avgtype: 'median', 'mean'
 %       - bincentre: 1xM vector of phase bin centres
-%       - ampstats: bool, randomization stats on fit amplitude 
-%       - shiftstats: bool, randomization stats on fit phase shift 
+%       - randstats: bool, randomization stats on fit amplitude AND phase shift
+%       - ang2ms: bool, convert phase difference to time difference
+%       - freq: required if ang2ms=true
 %       - nperm: numbr of permutations
+%       - doplot: plot fit (default=false)
+%       - plottitle: plot title
 %
 % Copyright 2017, Benjamin Voloh
 
 %----------------------------------------------------------------
 % inputs and checks
 cfg = checkfield(cfg,'avgtype','needit');
-cfg = checkfield(cfg,'freq','needit');
 cfg = checkfield(cfg,'bincentre','needit');
 cfg = checkfield(cfg,'randstats',0);
 cfg = checkfield(cfg,'nperm',nan);
 cfg = checkfield(cfg,'doplot',0);
 cfg = checkfield(cfg,'plottitle','cosine fit to raw data');
 cfg = checkfield(cfg,'ang2ms',false);
+
+if cfg.ang2ms; cfg = checkfield(cfg,'freq','needit'); end
 
 [ndat1,npha1] = size(dat1);
 [ndat2,npha2] = size(dat2);
