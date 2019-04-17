@@ -1,6 +1,6 @@
 function varargout = phaDepPow_cosine_stats(dat,cfg)
-% out = phaDepPow_cosine_stat(dat,cfg)
-% [out,fighandle] = phaDepPow_cosine_stat(dat,cfg)
+% out = phaDepPow_cosine_stats(dat,cfg)
+% [out,fighandle] = phaDepPow_cosine_stats(dat,cfg)
 %
 % Inputs:
 %   - dat: NxM matrix [ndat,nPhaseBins]
@@ -10,6 +10,7 @@ function varargout = phaDepPow_cosine_stats(dat,cfg)
 %       - ampstats: bool, randomization stats on fit amplitude 
 %       - shiftstats: bool, randomization stats on fit phase shift 
 %       - nperm: numbr of permutations
+%       - nparallel: number of workers
 %       - doplot: plot fit (default=false)
 %       - plottitle: plot title
 %
@@ -22,6 +23,7 @@ cfg = checkfield(cfg,'bincentre','needit');
 cfg = checkfield(cfg,'ampstats',1);
 cfg = checkfield(cfg,'shiftstats',1);
 cfg = checkfield(cfg,'nperm',nan);
+cfg = checkfield(cfg,'nparallel',0);
 cfg = checkfield(cfg,'doplot',0);
 cfg = checkfield(cfg,'plottitle','cosine fit to raw data');
 
@@ -32,6 +34,14 @@ end
 
 if numel(cfg.bincentre) ~= npha
     error('dat and bincentre dimensions dont agree')
+end
+
+% start parallel if need be
+if cfg.nparallel > 1
+    pp = parcluster;
+    pp.NumWorkers = cfg.nparallel;
+else
+    cfg.nparallel = 0; % set to zero so parfor works as for loop
 end
 
 %cosine inputs
@@ -54,8 +64,8 @@ disp('stats on amplitude...')
 if cfg.ampstats
     Arand = nan(cfg.nperm,1);
     
-    for np=1:cfg.nperm
-        dotdotdot(np,ceil(cfg.nperm*0.1),cfg.nperm)
+    parfor (np=1:cfg.nperm,cfg.nparallel)
+        %dotdotdot(np,ceil(cfg.nperm*0.1),cfg.nperm)
 
         %randomize for each cell individually
         tmp = nan(size(dat));
@@ -78,8 +88,8 @@ end
 disp('stats on phase offset...')
 if cfg.shiftstats
     Trand = nan(cfg.nperm,1);
-    for np=1:cfg.nperm
-        dotdotdot(np,ceil(cfg.nperm*0.1),cfg.nperm)
+    parfor (np=1:cfg.nperm,cfg.nparallel)
+        %dotdotdot(np,ceil(cfg.nperm*0.1),cfg.nperm)
 
         %randomize for each cell individually
         % - Womelsdorf 2014, Curr Biol

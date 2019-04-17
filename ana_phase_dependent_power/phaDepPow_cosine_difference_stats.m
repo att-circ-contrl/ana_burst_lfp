@@ -11,8 +11,7 @@ function varargout = phaDepPow_cosine_difference_stats(dat1,dat2,cfg)
 %       - ang2ms: bool, convert phase difference to time difference
 %       - freq: required if ang2ms=true
 %       - nperm: numbr of permutations
-%       - doplot: plot fit (default=false)
-%       - plottitle: plot title
+%       - nparallel: number of workers
 %
 % Copyright 2017, Benjamin Voloh
 
@@ -22,9 +21,10 @@ cfg = checkfield(cfg,'avgtype','needit');
 cfg = checkfield(cfg,'bincentre','needit');
 cfg = checkfield(cfg,'randstats',0);
 cfg = checkfield(cfg,'nperm',nan);
-cfg = checkfield(cfg,'doplot',0);
-cfg = checkfield(cfg,'plottitle','cosine fit to raw data');
+cfg = checkfield(cfg,'nparallel',0);
 cfg = checkfield(cfg,'ang2ms',false);
+% cfg = checkfield(cfg,'doplot',0);
+% cfg = checkfield(cfg,'plottitle','cosine fit to raw data');
 
 if cfg.ang2ms; cfg = checkfield(cfg,'freq','needit'); end
 
@@ -33,6 +33,14 @@ if cfg.ang2ms; cfg = checkfield(cfg,'freq','needit'); end
 
 if npha1~=npha2 && (numel(cfg.bincentre) ~= npha1 || numel(cfg.bincentre) ~= npha2)
     error('dat and bincentre dimensions dont agree')
+end
+
+% start parallel if need be
+if cfg.nparallel > 1
+    pp = parcluster;
+    pp.NumWorkers = cfg.nparallel;
+else
+    cfg.nparallel = 0; % set to zero so parfor works as for loop
 end
 
 %cosine inputs
@@ -69,8 +77,8 @@ if cfg.randstats
     sz = size(tmp);
     ii = size(dat1,1);
 
-    for np=1:cfg.nperm
-        dotdotdot(np,ceil(cfg.nperm*0.1),cfg.nperm)
+    parfor (np=1:cfg.nperm,cfg.nparallel)
+        %dotdotdot(np,ceil(cfg.nperm*0.1),cfg.nperm)
 
         ind = randperm(sz(1));
         
