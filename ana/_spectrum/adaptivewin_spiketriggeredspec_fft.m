@@ -42,3 +42,4 @@ sts.fourierspctrm{1} = spec;
 sts.cfg = cfg;
 sts.cfg.cfg = sta.cfg;
 sts.dimord = '{chan}_spike_lfpchan_freq';
+sts.trialtime = nan(size(sta.trials,1),2);
